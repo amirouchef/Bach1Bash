@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bash – Séance 4 : projet et quiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:wght@600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F4F6FB; --surface:#FFFFFF; --ink:#14213D; --muted:#4A5878; --line:#D5DBEA;
+  --accent:#B87700; --accent-bg:#FFF3D6; --code-bg:#14213D; --code-ink:#EAF0FF; --code-hl:#FFC857;
+  --ok:#1B7F5C; --ok-bg:#DDF3EA; --warn:#B3261E; --warn-bg:#FCE4E2;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1626; --surface:#16213A; --ink:#EAF0FF; --muted:#A8B6D6; --line:#2A3858;
+    --accent:#FFC857; --accent-bg:#2B2410; --code-bg:#08101F; --code-ink:#EAF0FF; --code-hl:#FFC857;
+    --ok:#6FE0B5; --ok-bg:#12322A; --warn:#FF9E96; --warn-bg:#3A1A18;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1626; --surface:#16213A; --ink:#EAF0FF; --muted:#A8B6D6; --line:#2A3858;
+  --accent:#FFC857; --accent-bg:#2B2410; --code-bg:#08101F; --code-ink:#EAF0FF; --code-hl:#FFC857;
+  --ok:#6FE0B5; --ok-bg:#12322A; --warn:#FF9E96; --warn-bg:#3A1A18;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:1rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 1.2rem/1.6 "Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif}
+.layout{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:2.5rem;max-width:80rem;margin:0 auto;padding:1.5rem}
+nav{position:sticky;top:1.5rem;align-self:start;font-size:.95rem}
+nav h2{font:800 1.1rem "Bricolage Grotesque",sans-serif;margin:0 0 .75rem}
+nav ol{list-style:none;margin:0;padding:0;border-left:3px solid var(--line)}
+nav li a{display:block;padding:.45rem .8rem;color:var(--muted);text-decoration:none;border-left:3px solid transparent;margin-left:-3px}
+nav li a:hover,nav li a:focus-visible{color:var(--ink);border-left-color:var(--accent);outline:none}
+nav small{display:block;color:var(--muted)}
+main{min-width:0;max-width:52rem}
+header.hero{padding:1rem 0 2rem;border-bottom:3px solid var(--ink);margin-bottom:2rem}
+h1{font:800 clamp(2.2rem,5vw,3.4rem)/1.05 "Bricolage Grotesque",sans-serif;margin:0 0 .75rem;letter-spacing:-.02em}
+.lead{font-size:1.3rem;color:var(--muted);margin:0}
+h2{font:800 1.9rem/1.15 "Bricolage Grotesque",sans-serif;margin:3.2rem 0 .8rem;letter-spacing:-.01em}
+h3{font:600 1.3rem "Bricolage Grotesque",sans-serif;margin:1.8rem 0 .4rem}
+p{margin:.6rem 0}
+code{font:400 .92em "JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;background:var(--accent-bg);color:var(--ink);padding:.1em .35em;border-radius:4px}
+pre{background:var(--code-bg);color:var(--code-ink);padding:1rem 1.2rem;border-radius:8px;overflow-x:auto;margin:.9rem 0;font:400 1.02rem/1.55 "JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;border:1px solid var(--line)}
+pre code{background:none;color:inherit;padding:0;font:inherit}
+.c{color:#8FA3C8}.k{color:var(--code-hl)}
+.story{background:var(--accent-bg);border-left:6px solid var(--accent);padding:1rem 1.2rem;border-radius:0 8px 8px 0;margin:1.5rem 0}
+.story p{margin:.2rem 0}
+.pitfall{background:var(--warn-bg);border-left:6px solid var(--warn);padding:.8rem 1.1rem;border-radius:0 8px 8px 0;margin:1.2rem 0}
+.pitfall strong{color:var(--warn)}
+table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:1.05rem;background:var(--surface)}
+th,td{border:1px solid var(--line);padding:.5rem .8rem;text-align:left;vertical-align:top}
+th{background:var(--accent-bg)}
+.exo{background:var(--surface);border:2px solid var(--ink);border-radius:10px;padding:1.2rem 1.4rem;margin:2rem 0}
+.exo>h3{margin-top:0;display:flex;gap:.7rem;align-items:baseline;flex-wrap:wrap}
+.tag{font:700 .85rem "Atkinson Hyperlegible",sans-serif;background:var(--ink);color:var(--bg);padding:.15rem .6rem;border-radius:999px}
+.exo.defi{border-color:var(--accent);border-width:3px}
+.exo.defi .tag{background:var(--accent);color:var(--bg)}
+.exo ul,.exo ol{padding-left:1.4rem}
+.exo li{margin:.3rem 0}
+details{margin:1rem 0;border:1px dashed var(--line);border-radius:8px;padding:.5rem 1rem}
+summary{cursor:pointer;font-weight:700;color:var(--accent)}
+summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.toolbox{background:var(--ok-bg);border-left:6px solid var(--ok);padding:1rem 1.2rem;border-radius:0 8px 8px 0;margin:1.5rem 0}
+.toolbox h3{margin-top:0;color:var(--ok)}
+.toolbox ul{margin:.3rem 0;padding-left:1.3rem}
+footer{margin:4rem 0 2rem;color:var(--muted);font-size:.95rem}
+#theme{position:fixed;right:1rem;bottom:1rem;font:700 .95rem "Atkinson Hyperlegible",sans-serif;background:var(--ink);color:var(--bg);border:0;border-radius:999px;padding:.55rem 1rem;cursor:pointer}
+#theme:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+@media (max-width:60rem){.layout{grid-template-columns:1fr;gap:1rem}nav{position:static}nav ol{display:flex;flex-wrap:wrap;border-left:0;gap:.3rem}nav li a{border:1px solid var(--line);border-radius:999px;margin:0;padding:.3rem .8rem}nav small{display:none}}
+@media print{nav,#theme{display:none}.layout{display:block}}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<nav aria-label="Plan de la séance">
+  <h2>Séance 4</h2>
+  <ol>
+    <li><a href="#deroule">Déroulé<small>90 min</small></a></li>
+    <li><a href="#memo">Aide-mémoire<small>séances 1 à 3</small></a></li>
+    <li><a href="#methode">Méthode de travail<small>projet</small></a></li>
+    <li><a href="#squelette">Squelette de menu<small>à copier</small></a></li>
+    <li><a href="#debug">Déboguer<small>bash -n, bash -x</small></a></li>
+    <li><a href="#remise">Remise<small>README et barème</small></a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="hero">
+  <h1>Projet et quiz</h1>
+  <p class="lead">Système d’exploitation – Bachelor 1 – Séance 4 sur 4. Tu lances ton projet, puis tu fais le point sur tout ce que tu sais faire.</p>
+  <div class="story">
+    <p><strong>Dernier jour de la période d’essai chez BashCorp.</strong> Ton chef veut voir un vrai outil, utilisable par un collègue sans que tu sois là pour l’expliquer.</p>
+    <p>Aujourd’hui : tu avances sur ton projet, tu passes le quiz, et tu repars avec ce qu’il faut pour finir à la maison.</p>
+  </div>
+</header>
+
+<section id="deroule">
+<h2>Déroulé de la séance</h2>
+<table>
+<tr><th>Horaire</th><th>Étape</th></tr>
+<tr><td>0h00 – 0h10</td><td>Retour sur la séance 3 et questions sur le projet</td></tr>
+<tr><td>0h10 – 0h50</td><td>Travail sur le projet, avec l’aide de l’enseignant</td></tr>
+<tr><td>0h50 – 1h20</td><td>Quiz en ligne (Forms), individuel</td></tr>
+<tr><td>1h20 – 1h30</td><td>Consignes de remise du projet</td></tr>
+</table>
+<p>Pendant les 40 minutes de projet, ne cherche pas à tout faire : <strong>fais marcher une première version minimale</strong> (un menu, une action), puis ajoute le reste à la maison.</p>
+</section>
+
+<section id="memo">
+<h2>Aide-mémoire des séances 1 à 3</h2>
+<table>
+<tr><th>Je veux…</th><th>J’écris…</th></tr>
+<tr><td>lancer un script</td><td><code>#!/bin/bash</code> en 1re ligne, <code>chmod +x script.sh</code>, <code>./script.sh</code></td></tr>
+<tr><td>afficher, lire</td><td><code>echo "texte $var"</code>, <code>read -p "Question ? " var</code></td></tr>
+<tr><td>créer une variable</td><td><code>nom="valeur"</code> (sans espace), <code>x=$(commande)</code>, <code>n=$(( n + 1 ))</code></td></tr>
+<tr><td>lire les arguments</td><td><code>$1</code> <code>$2</code>, <code>$#</code> (nombre), <code>$@</code> (tous), <code>$0</code> (nom du script)</td></tr>
+<tr><td>rediriger</td><td><code>&gt;</code> écrase, <code>&gt;&gt;</code> ajoute, <code>2&gt;</code> erreurs, <code>&amp;&gt;/dev/null</code> tout cacher, <code>|</code> enchaîner</td></tr>
+<tr><td>tester un nombre</td><td><code>[ "$a" -eq "$b" ]</code> avec <code>-eq -ne -lt -le -gt -ge</code></td></tr>
+<tr><td>tester du texte</td><td><code>[ "$a" = "$b" ]</code>, <code>!=</code>, <code>-z</code> (vide), <code>-n</code> (non vide)</td></tr>
+<tr><td>tester un fichier</td><td><code>-e</code> existe, <code>-f</code> fichier, <code>-d</code> dossier, <code>-r -w -x</code> droits, <code>!</code> négation</td></tr>
+<tr><td>décider</td><td><code>if … then … elif … else … fi</code>, <code>case "$x" in a) … ;; *) … ;; esac</code></td></tr>
+<tr><td>vérifier le résultat d’une commande</td><td><code>$?</code> (0 = succès), ou directement <code>if commande; then</code></td></tr>
+<tr><td>répéter</td><td><code>for x in liste; do … done</code>, <code>while [ … ]; do … done</code>, <code>while read l; do … done &lt; fichier</code>, <code>break</code>, <code>continue</code></td></tr>
+<tr><td>réutiliser du code</td><td><code>nom() { … }</code> défini avant l’appel, <code>local</code></td></tr>
+<tr><td>quitter</td><td><code>exit 0</code> (tout va bien), <code>exit 1</code> ou plus (erreur)</td></tr>
+<tr><td>être root ?</td><td><code>if [ "$(id -u)" -eq 0 ]; then</code></td></tr>
+<tr><td>un utilisateur existe ?</td><td><code>if id "$u" &amp;&gt;/dev/null; then</code></td></tr>
+<tr><td>sauvegarder</td><td><code>tar -czf archive.tar.gz dossier</code>, <code>date +%Y%m%d_%H%M%S</code></td></tr>
+</table>
+</section>
+
+<section id="methode">
+<h2>Méthode de travail pour le projet</h2>
+<ol>
+  <li><strong>Écris en français ce que fait ton outil</strong>, en 3 à 5 phrases, dans un fichier à part ou en commentaire. Ce sera la base de ton README.</li>
+  <li><strong>Liste les actions du menu</strong> (4 ou 5 maximum) et donne un numéro à chacune.</li>
+  <li><strong>Commence par le squelette</strong> ci-dessous : un menu qui revient, des actions vides qui affichent juste leur nom.</li>
+  <li><strong>Remplis les actions une par une.</strong> Après chacune : tu lances, tu testes avec un cas normal et un cas absurde, et seulement après tu passes à la suivante.</li>
+  <li><strong>Ajoute les protections :</strong> arguments manquants, fichier absent, saisie invalide, droits insuffisants.</li>
+  <li><strong>Relis :</strong> commentaires, indentation, noms de variables clairs.</li>
+</ol>
+<div class="pitfall"><strong>Conseil :</strong> garde une copie de ta dernière version qui marche (<code>cp projet.sh projet.sh.bak</code>) avant chaque grosse modification.</div>
+</section>
+
+<section id="squelette">
+<h2>Squelette de menu à adapter</h2>
+<pre><code>#!/bin/bash
+# projet.sh - Titre de ton projet
+# Auteur(s) : ...
+
+LOG="projet.log"
+
+journal() {
+    echo "$(date '+%F %T') - $1" &gt;&gt; "$LOG"
+}
+
+action_un() {
+    echo "Action 1"
+    journal "Action 1 lancee"
+}
+
+action_deux() {
+    echo "Action 2"
+    journal "Action 2 lancee"
+}
+
+afficher_menu() {
+    echo "=== Mon projet ==="
+    echo "1) Premiere action"
+    echo "2) Deuxieme action"
+    echo "0) Quitter"
+}
+
+while true; do
+    afficher_menu
+    read -p "Ton choix : " choix
+    case "$choix" in
+        1) action_un ;;
+        2) action_deux ;;
+        0) echo "Au revoir" ; break ;;
+        *) echo "Choix invalide" ;;
+    esac
+done</code></pre>
+<p>Ce squelette contient déjà de quoi remplir une bonne partie du barème : une fonction, une boucle, une condition (<code>case</code>), un journal. À toi d’y ajouter des contrôles d’erreur et le vrai contenu.</p>
+</section>
+
+<section id="debug">
+<h2>Déboguer</h2>
+<pre><code>bash -n projet.sh        <span class="c"># vérifie la syntaxe sans rien exécuter</span>
+bash -x projet.sh        <span class="c"># exécute en affichant chaque commande avec ses valeurs, précédée de +</span></code></pre>
+<p>Lis toujours le <strong>numéro de ligne</strong> dans le message d’erreur, mais regarde aussi quelques lignes <em>avant</em> : l’oubli d’un <code>fi</code> ou d’un <code>done</code> est signalé tout à la fin du script.</p>
+<table>
+<tr><th>Message</th><th>Cause probable</th></tr>
+<tr><td><code>unexpected end of file</code></td><td><code>fi</code>, <code>done</code>, <code>esac</code> ou <code>}</code> oublié</td></tr>
+<tr><td><code>syntax error near unexpected token</code></td><td><code>then</code> ou <code>do</code> oublié, ou <code>;</code> manquant avant</td></tr>
+<tr><td><code>[: missing ]</code> ou <code>unary operator expected</code></td><td>Espaces manquants dans <code>[ ]</code>, ou variable vide non entourée de guillemets</td></tr>
+<tr><td><code>integer expression expected</code></td><td>Comparaison numérique sur une variable vide ou qui n’est pas un nombre</td></tr>
+<tr><td><code>command not found</code></td><td>Faute de frappe, fonction appelée avant sa définition, espaces autour du <code>=</code></td></tr>
+<tr><td><code>Permission denied</code></td><td><code>chmod +x</code> oublié, ou commande qui demande root</td></tr>
+<tr><td>Le script tourne sans fin</td><td>Compteur jamais modifié dans un <code>while</code> (<code>Ctrl+C</code> pour arrêter)</td></tr>
+</table>
+<p><strong>Pour aller plus loin :</strong> l’outil <code>shellcheck</code> (<code>sudo apt install shellcheck</code>) analyse ton script et explique chaque problème.</p>
+</section>
+
+<section id="remise">
+<h2>Remise du projet</h2>
+<p><strong>À rendre :</strong> ton script (<code>.sh</code>) et un fichier <code>README.txt</code>. Si tu as des fichiers d’exemple utiles (liste d’utilisateurs…), joins-les. Date et lieu de dépôt : précisés par ton enseignant.</p>
+<h3>Modèle de README.txt</h3>
+<pre><code>Projet : nom de ton outil
+Auteur(s) : prénom NOM
+
+Ce que fait le script :
+  (3 à 5 phrases)
+
+Comment le lancer :
+  chmod +x projet.sh
+  ./projet.sh   (ou : sudo ./projet.sh si root nécessaire)
+
+Fonctionnalités :
+  1) ...
+  2) ...
+
+Ce qui marche, ce qui ne marche pas :
+  ...
+
+Idées d’amélioration :
+  ...</code></pre>
+<h3>Rappel du barème</h3>
+<table>
+<tr><th>Critère</th><th>Points</th></tr>
+<tr><td>Le script fonctionne et fait ce qui est demandé</td><td>6</td></tr>
+<tr><td>Une condition, une boucle et une fonction</td><td>4</td></tr>
+<tr><td>Gestion des erreurs et des arguments</td><td>3</td></tr>
+<tr><td>Lisibilité : commentaires, indentation, noms clairs</td><td>3</td></tr>
+<tr><td>Redirections, journal ou rapport enregistré</td><td>2</td></tr>
+<tr><td>README.txt</td><td>2</td></tr>
+<tr><td>Bonus : <code>cron</code>, créativité</td><td>jusqu’à +2</td></tr>
+</table>
+<div class="toolbox">
+  <h3>Avant de rendre, coche chaque ligne</h3>
+  <ul>
+    <li>Le script démarre avec <code>./projet.sh</code> sur une VM neuve</li>
+    <li><code>bash -n</code> ne signale aucune erreur</li>
+    <li>Le menu revient après chaque action, et « Quitter » fonctionne</li>
+    <li>Un argument manquant, un fichier absent et une saisie absurde n’ont pas fait planter le script</li>
+    <li>Il y a au moins une fonction, une boucle, une condition, une redirection</li>
+    <li>Les commentaires expliquent <em>pourquoi</em>, pas seulement <em>quoi</em></li>
+    <li>Le README est complet</li>
+  </ul>
+</div>
+</section>
+
+<footer>Système d’exploitation – Bachelor 1 – Bash, séance 4</footer>
+</main>
+</div>
+<button id="theme" type="button" aria-label="Changer de thème">Thème clair / sombre</button>
+<script>
+(function(){
+  var b=document.getElementById('theme'),r=document.documentElement;
+  b.addEventListener('click',function(){
+    var dark=r.getAttribute('data-theme')==='dark'||(!r.getAttribute('data-theme')&&matchMedia('(prefers-color-scheme: dark)').matches);
+    r.setAttribute('data-theme',dark?'light':'dark');
+  });
+})();
+</script>
+</body>
+</html>

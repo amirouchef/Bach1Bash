@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bash – Séance 3 : boucles et fonctions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:wght@600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F4F6FB; --surface:#FFFFFF; --ink:#14213D; --muted:#4A5878; --line:#D5DBEA;
+  --accent:#B87700; --accent-bg:#FFF3D6; --code-bg:#14213D; --code-ink:#EAF0FF; --code-hl:#FFC857;
+  --ok:#1B7F5C; --ok-bg:#DDF3EA; --warn:#B3261E; --warn-bg:#FCE4E2;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1626; --surface:#16213A; --ink:#EAF0FF; --muted:#A8B6D6; --line:#2A3858;
+    --accent:#FFC857; --accent-bg:#2B2410; --code-bg:#08101F; --code-ink:#EAF0FF; --code-hl:#FFC857;
+    --ok:#6FE0B5; --ok-bg:#12322A; --warn:#FF9E96; --warn-bg:#3A1A18;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1626; --surface:#16213A; --ink:#EAF0FF; --muted:#A8B6D6; --line:#2A3858;
+  --accent:#FFC857; --accent-bg:#2B2410; --code-bg:#08101F; --code-ink:#EAF0FF; --code-hl:#FFC857;
+  --ok:#6FE0B5; --ok-bg:#12322A; --warn:#FF9E96; --warn-bg:#3A1A18;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:1rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 1.2rem/1.6 "Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif}
+.layout{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:2.5rem;max-width:80rem;margin:0 auto;padding:1.5rem}
+nav{position:sticky;top:1.5rem;align-self:start;font-size:.95rem}
+nav h2{font:800 1.1rem "Bricolage Grotesque",sans-serif;margin:0 0 .75rem}
+nav ol{list-style:none;margin:0;padding:0;border-left:3px solid var(--line)}
+nav li a{display:block;padding:.45rem .8rem;color:var(--muted);text-decoration:none;border-left:3px solid transparent;margin-left:-3px}
+nav li a:hover,nav li a:focus-visible{color:var(--ink);border-left-color:var(--accent);outline:none}
+nav small{display:block;color:var(--muted)}
+main{min-width:0;max-width:52rem}
+header.hero{padding:1rem 0 2rem;border-bottom:3px solid var(--ink);margin-bottom:2rem}
+h1{font:800 clamp(2.2rem,5vw,3.4rem)/1.05 "Bricolage Grotesque",sans-serif;margin:0 0 .75rem;letter-spacing:-.02em}
+.lead{font-size:1.3rem;color:var(--muted);margin:0}
+h2{font:800 1.9rem/1.15 "Bricolage Grotesque",sans-serif;margin:3.2rem 0 .8rem;letter-spacing:-.01em}
+h3{font:600 1.3rem "Bricolage Grotesque",sans-serif;margin:1.8rem 0 .4rem}
+p{margin:.6rem 0}
+code{font:400 .92em "JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;background:var(--accent-bg);color:var(--ink);padding:.1em .35em;border-radius:4px}
+pre{background:var(--code-bg);color:var(--code-ink);padding:1rem 1.2rem;border-radius:8px;overflow-x:auto;margin:.9rem 0;font:400 1.02rem/1.55 "JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;border:1px solid var(--line)}
+pre code{background:none;color:inherit;padding:0;font:inherit}
+.c{color:#8FA3C8}.k{color:var(--code-hl)}
+.story{background:var(--accent-bg);border-left:6px solid var(--accent);padding:1rem 1.2rem;border-radius:0 8px 8px 0;margin:1.5rem 0}
+.story p{margin:.2rem 0}
+.pitfall{background:var(--warn-bg);border-left:6px solid var(--warn);padding:.8rem 1.1rem;border-radius:0 8px 8px 0;margin:1.2rem 0}
+.pitfall strong{color:var(--warn)}
+table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:1.05rem;background:var(--surface)}
+th,td{border:1px solid var(--line);padding:.5rem .8rem;text-align:left;vertical-align:top}
+th{background:var(--accent-bg)}
+.exo{background:var(--surface);border:2px solid var(--ink);border-radius:10px;padding:1.2rem 1.4rem;margin:2rem 0}
+.exo>h3{margin-top:0;display:flex;gap:.7rem;align-items:baseline;flex-wrap:wrap}
+.tag{font:700 .85rem "Atkinson Hyperlegible",sans-serif;background:var(--ink);color:var(--bg);padding:.15rem .6rem;border-radius:999px}
+.exo.defi{border-color:var(--accent);border-width:3px}
+.exo.defi .tag{background:var(--accent);color:var(--bg)}
+.exo ul,.exo ol{padding-left:1.4rem}
+.exo li{margin:.3rem 0}
+details{margin:1rem 0;border:1px dashed var(--line);border-radius:8px;padding:.5rem 1rem}
+summary{cursor:pointer;font-weight:700;color:var(--accent)}
+summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.toolbox{background:var(--ok-bg);border-left:6px solid var(--ok);padding:1rem 1.2rem;border-radius:0 8px 8px 0;margin:1.5rem 0}
+.toolbox h3{margin-top:0;color:var(--ok)}
+.toolbox ul{margin:.3rem 0;padding-left:1.3rem}
+footer{margin:4rem 0 2rem;color:var(--muted);font-size:.95rem}
+#theme{position:fixed;right:1rem;bottom:1rem;font:700 .95rem "Atkinson Hyperlegible",sans-serif;background:var(--ink);color:var(--bg);border:0;border-radius:999px;padding:.55rem 1rem;cursor:pointer}
+#theme:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+@media (max-width:60rem){.layout{grid-template-columns:1fr;gap:1rem}nav{position:static}nav ol{display:flex;flex-wrap:wrap;border-left:0;gap:.3rem}nav li a{border:1px solid var(--line);border-radius:999px;margin:0;padding:.3rem .8rem}nav small{display:none}}
+@media print{nav,#theme{display:none}.layout{display:block}}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<nav aria-label="Plan de la séance">
+  <h2>Séance 3</h2>
+  <ol>
+    <li><a href="#retour">Retour<small>5 min</small></a></li>
+    <li><a href="#boucles">Les boucles<small>20 min</small></a></li>
+    <li><a href="#fonctions">Les fonctions<small>10 min</small></a></li>
+    <li><a href="#users">Créer des utilisateurs<small>25 min</small></a></li>
+    <li><a href="#sauvegarde">La sauvegarde<small>15 min</small></a></li>
+    <li><a href="#projet">Cron et projet<small>15 min</small></a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="hero">
+  <h1>Répéter sans se fatiguer</h1>
+  <p class="lead">Système d’exploitation – Bachelor 1 – Séance 3 sur 4. Aujourd’hui, c’est le script qui travaille à ta place.</p>
+  <div class="story">
+    <p><strong>Lundi matin chez BashCorp : cinq nouveaux collègues arrivent.</strong> Il faut leur créer un compte, les mettre dans le bon groupe, et sauvegarder leurs dossiers chaque soir. À la main, c’est interminable.</p>
+    <p>Outils n°3 et n°4 : <strong>la boucle</strong> et <strong>la fonction</strong>. À la fin, tu auras un script qui crée cinq comptes en une seconde et un script de sauvegarde.</p>
+  </div>
+</header>
+
+<section id="retour">
+<h2>Retour sur la séance 2</h2>
+<p>Ton <code>devine.sh</code> ne permet qu’un seul essai. Comment faire pour rejouer, sans copier-coller dix fois le même code ? Avec une <strong>boucle</strong>.</p>
+</section>
+
+<section id="boucles">
+<h2>Les boucles</h2>
+<h3><code>for</code> : pour chaque élément d’une liste</h3>
+<pre><code><span class="k">for</span> fruit <span class="k">in</span> pomme poire kiwi; <span class="k">do</span>
+    echo "J’aime la $fruit"
+<span class="k">done</span>
+
+for i in {1..5}; do echo "Tour $i"; done     <span class="c"># de 1 à 5</span>
+for f in *.sh; do echo "Script : $f"; done   <span class="c"># pour chaque fichier .sh du dossier</span></code></pre>
+<h3><code>while</code> : tant que la condition est vraie</h3>
+<pre><code>compteur=1
+<span class="k">while</span> [ $compteur -le 5 ]; <span class="k">do</span>
+    echo "Tour $compteur"
+    compteur=$(( compteur + 1 ))      <span class="c"># sans cette ligne, la boucle ne s’arrête jamais</span>
+<span class="k">done</span></code></pre>
+<div class="pitfall"><strong>Boucle infinie ?</strong> Si le script ne s’arrête plus, tape <code>Ctrl+C</code> dans le terminal.</div>
+<h3>Lire un fichier ligne par ligne</h3>
+<pre><code>while read ligne; do
+    echo "Ligne lue : $ligne"
+done &lt; liste.txt</code></pre>
+<h3>Sortir de la boucle ou passer au tour suivant</h3>
+<table>
+<tr><th>Mot</th><th>Effet</th></tr>
+<tr><td><code>break</code></td><td>sort de la boucle immédiatement</td></tr>
+<tr><td><code>continue</code></td><td>saute le reste du tour et passe au suivant</td></tr>
+</table>
+<p>Combiné avec <code>case</code>, ça donne le <strong>menu qui revient</strong>, que tu retrouveras dans le projet :</p>
+<pre><code>while true; do
+    echo "1) Date   2) Quitter"
+    read -p "Choix : " choix
+    case "$choix" in
+        1) date ;;
+        2) echo "Au revoir" ; break ;;
+        *) echo "Choix invalide" ;;
+    esac
+done</code></pre>
+
+<div class="exo">
+  <h3><span class="tag">Exercice 1</span> Échauffement</h3>
+  <ol>
+    <li><strong>Compte à rebours :</strong> affiche 10, 9, 8… 1, puis <em>Décollage !</em> avec une boucle <code>while</code>.</li>
+    <li><strong>Inventaire :</strong> avec un <code>for</code>, affiche pour chaque script <code>*.sh</code> de ton dossier son nom et son nombre de lignes (<code>wc -l</code>).</li>
+    <li><strong>Table de multiplication :</strong> <code>table.sh</code> reçoit un nombre en argument et affiche sa table de 1 à 10 (utilise <code>$(( ))</code>).</li>
+  </ol>
+  <details><summary>Un indice</summary>
+    <p>Compte à rebours : on démarre à 10 et on enlève 1 à chaque tour. Inventaire : <code>$(wc -l &lt; "$f")</code> donne juste le nombre. Table : <code>echo "$1 x $i = $(( $1 * i ))"</code> est une piste.</p>
+  </details>
+</div>
+
+<div class="exo">
+  <h3><span class="tag">Exercice 2</span> Le jeu du nombre mystère, version complète</h3>
+  <p>Reprends <code>devine.sh</code> de la séance 2. Cette fois, le joueur continue jusqu’à trouver, et le script compte ses essais.</p>
+  <ul>
+    <li>le joueur propose des nombres jusqu’à trouver ;</li>
+    <li>après chaque essai : <em>Trop petit</em> ou <em>Trop grand</em> ;</li>
+    <li>à la fin : <em>Bravo ! Trouvé en N essai(s)</em>.</li>
+  </ul>
+  <p><strong>Bonus :</strong> limite à 7 essais avec <code>break</code> (et dis <em>Perdu</em> si besoin) ; refuse les saisies qui ne sont pas un nombre ; propose de rejouer.</p>
+  <details><summary>Un indice</summary>
+    <p>Un compteur <code>essais</code> à 0 avant la boucle, +1 à chaque tour. Pour arrêter : une variable <code>trouve</code> qui passe à <code>oui</code>, ou un <code>break</code>.</p>
+  </details>
+</div>
+</section>
+
+<section id="fonctions">
+<h2>Les fonctions</h2>
+<p>Une fonction est un bout de script auquel on donne un nom, pour le <strong>réutiliser</strong> sans le recopier.</p>
+<pre><code>dire_bonjour() {
+    echo "Bonjour $1 !"          <span class="c"># $1 = premier argument donné à la fonction</span>
+}
+
+dire_bonjour Alice               <span class="c"># on l’appelle comme une commande</span>
+dire_bonjour Bob</code></pre>
+<ul>
+  <li>Une fonction doit être <strong>définie avant</strong> d’être appelée, donc en haut du script.</li>
+  <li>Dans une fonction, <code>$1</code>, <code>$2</code>… sont les arguments de la fonction, pas ceux du script.</li>
+  <li>Une variable créée avec <code>local x=5</code> n’existe que dans la fonction.</li>
+</ul>
+
+<div class="exo">
+  <h3><span class="tag">Exercice 3</span> Ma boîte à outils : titre et journal</h3>
+  <p>Écris <code>outils.sh</code> avec deux fonctions :</p>
+  <ul>
+    <li><code>titre</code> : affiche une ligne de séparation, le texte reçu en argument, puis une autre ligne ;</li>
+    <li><code>journal</code> : ajoute à la fin du fichier <code>journal.log</code> une ligne du type <em>2026-11-04 14:32:10 - message</em>.</li>
+  </ul>
+  <p>Appelle-les chacune deux fois à la suite, puis affiche le journal avec <code>cat</code>. Cette fonction <code>journal</code> te servira dans les deux scripts suivants et dans le projet.</p>
+  <details><summary>Un indice</summary>
+    <p>La date : <code>$(date '+%F %T')</code>. Pour ajouter sans effacer, <code>&gt;&gt;</code>. Le message reçu est <code>$1</code>.</p>
+  </details>
+</div>
+</section>
+
+<section id="users">
+<h2>Créer cinq utilisateurs d’un coup</h2>
+<p>Retour aux utilisateurs et aux groupes des premières séances, version automatique. Les commandes que tu connais déjà font le travail :</p>
+<pre><code>groupadd bashcorp                                   <span class="c"># crée le groupe</span>
+useradd -m -s /bin/bash -G bashcorp alice           <span class="c"># crée alice, avec son dossier perso, bash, dans le groupe</span>
+echo "alice:Changeme123" | chpasswd                 <span class="c"># fixe son mot de passe</span>
+getent group bashcorp                               <span class="c"># liste les membres du groupe</span></code></pre>
+<p>Ces commandes demandent d’être <strong>root</strong>. Ton script doit donc le vérifier (séance 2), puis lire la liste des noms dans un fichier.</p>
+<div class="pitfall"><strong>Deux pièges :</strong> une ligne vide dans la liste ferait planter <code>useradd</code> (traite-la avec <code>continue</code>), et lancer deux fois le script ne doit pas créer deux fois les mêmes comptes (teste avec <code>id</code>). Le <code>!</code> marche aussi devant une commande : <code>if ! getent group bashcorp &amp;&gt;/dev/null; then</code>.</div>
+
+<div class="exo">
+  <h3><span class="tag">Exercice 4</span> Le recrutement automatique</h3>
+  <ol>
+    <li>Crée un fichier <code>utilisateurs.txt</code> avec 5 prénoms, un par ligne.</li>
+    <li>Écris <code>creer_users.sh</code>, qui reçoit ce fichier en argument et :
+      <ul>
+        <li>vérifie qu’il est lancé en root, qu’un argument est donné et que le fichier existe ;</li>
+        <li>crée le groupe <code>bashcorp</code> s’il n’existe pas encore ;</li>
+        <li>pour chaque prénom : ignore la ligne si elle est vide, indique si le compte existe déjà, sinon le crée (avec son dossier, <code>/bin/bash</code>, le groupe, un mot de passe) ;</li>
+        <li>note chaque action avec ta fonction <code>journal</code> ;</li>
+        <li>affiche à la fin les membres du groupe.</li>
+      </ul>
+    </li>
+    <li>Lance-le avec <code>sudo</code>, puis une 2e fois : que se passe-t-il ? Vérifie avec <code>id</code>, <code>ls /home</code> et <code>getent group bashcorp</code>.</li>
+  </ol>
+  <p><strong>Bonus :</strong> force le changement de mot de passe à la première connexion (<code>chage -d 0 nom</code>) ; écris <code>supprimer_users.sh</code> qui supprime les comptes de la liste avec <code>userdel -r</code>, pour remettre la VM propre.</p>
+  <details><summary>Un indice</summary>
+    <p>Squelette : tests de départ, création du groupe, puis <code>while read utilisateur; do ... done &lt; "$1"</code> avec un <code>if id "$utilisateur" ...</code> à l’intérieur. Si <code>useradd</code> est introuvable avec <code>su</code> seul, utilise <code>su -</code> ou <code>sudo</code>.</p>
+  </details>
+</div>
+</section>
+
+<section id="sauvegarde">
+<h2>Le script de sauvegarde</h2>
+<p><code>tar</code> permet de ranger un dossier dans une seule archive compressée :</p>
+<pre><code>tar -czf mon_archive.tar.gz mon_dossier      <span class="c"># c = créer, z = compresser, f = nom du fichier</span>
+tar -tzf mon_archive.tar.gz                  <span class="c"># t = lister le contenu (sans extraire)</span>
+tar -xzf mon_archive.tar.gz                  <span class="c"># x = extraire</span></code></pre>
+<p>Pour que chaque sauvegarde ait un nom unique, on y met la date et l’heure : <code>date +%Y%m%d_%H%M%S</code> donne par exemple <code>20261104_143210</code>. Et <code>basename</code> extrait le dernier élément d’un chemin.</p>
+
+<div class="exo defi">
+  <h3><span class="tag">Défi</span> Sauvegarde horodatée avec journal</h3>
+  <p>Écris <code>sauvegarde.sh</code> qui reçoit un dossier en argument et :</p>
+  <ul>
+    <li>vérifie qu’un argument est donné et que c’est bien un dossier ;</li>
+    <li>crée si besoin un dossier <code>~/sauvegardes</code> ;</li>
+    <li>crée dedans une archive nommée <code>sauvegarde_NOMDUDOSSIER_DATE_HEURE.tar.gz</code> ;</li>
+    <li>teste si <code>tar</code> a réussi, affiche le résultat et l’écrit dans <code>~/sauvegardes/sauvegarde.log</code> avec ta fonction <code>journal</code>.</li>
+  </ul>
+  <p><strong>Pour les plus rapides :</strong> note la taille de l’archive dans le journal (<code>du -h</code>) ; vérifie l’archive avec <code>tar -tzf</code> ; crée un script <code>restaurer.sh</code> qui extrait une archive donnée dans <code>/tmp</code>.</p>
+  <details><summary>Un indice</summary>
+    <p><code>if tar -czf "$DEST/$nom" "$1"; then ... else ... fi</code> : le <code>if</code> teste directement la réussite de <code>tar</code>. Un message <em>Removing leading /</em> est normal, il ne signale pas une erreur.</p>
+  </details>
+</div>
+</section>
+
+<section id="projet">
+<h2>Cron et projet</h2>
+
+<h3>Démo : le script qui tourne tout seul</h3>
+<p>Pour finir, ton enseignant te montre comment lancer <code>sauvegarde.sh</code> automatiquement avec <code>cron</code>, le planificateur de tâches de Linux (à retenir, ce n’est pas obligatoire).</p>
+<pre><code>$ sudo apt install cron
+$ crontab -e                       <span class="c"># ouvre ta liste de tâches planifiées</span>
+* * * * * /home/etudiant/scripts/sauvegarde.sh /home/etudiant/documents</code></pre>
+<table>
+<tr><th>Champ</th><th>minute</th><th>heure</th><th>jour du mois</th><th>mois</th><th>jour de la semaine</th></tr>
+<tr><td>Valeurs</td><td>0-59</td><td>0-23</td><td>1-31</td><td>1-12</td><td>0-7 (lundi = 1)</td></tr>
+</table>
+<p>Exemples : <code>*/5 * * * *</code> toutes les 5 minutes ; <code>30 2 * * *</code> chaque jour à 2h30 ; <code>0 8 * * 1-5</code> à 8h du lundi au vendredi. Utilise toujours des <strong>chemins complets</strong> dans le crontab, retire la ligne après le test (<code>crontab -e</code> ou <code>crontab -r</code>) et surveille avec <code>tail -f ~/sauvegardes/sauvegarde.log</code>.</p>
+
+<h3>Le projet noté</h3>
+<p>Tu as une semaine après la séance 4 pour rendre ton projet, seul·e ou en binôme. Choisis <strong>un</strong> sujet :</p>
+<table>
+<tr><th>Sujet</th><th>Le script doit pouvoir…</th></tr>
+<tr><td><strong>1. Gestionnaire d’utilisateurs</strong></td><td>afficher un menu qui permet de créer un utilisateur, le supprimer, lister les comptes, ajouter un utilisateur à un groupe</td></tr>
+<tr><td><strong>2. Sauvegarde avec menu</strong></td><td>sauvegarder un dossier choisi, lister les archives existantes, restaurer une archive, consulter le journal</td></tr>
+<tr><td><strong>3. Mini outil d’admin</strong></td><td>afficher et enregistrer des rapports : infos système, espace disque, utilisateurs connectés, processus</td></tr>
+<tr><td><strong>4. Un jeu</strong></td><td>proposer un jeu complet (pendu, quiz, nombre mystère amélioré, chifoumi…) avec score</td></tr>
+</table>
+<h3>Ce qui est exigé dans tous les sujets</h3>
+<ul>
+  <li>un <strong>menu qui revient</strong> (<code>while</code> + <code>case</code>) avec une option « Quitter » ;</li>
+  <li>au moins une <strong>fonction</strong>, un <strong>contrôle d’erreur</strong> (argument, fichier, droits…) et une <strong>redirection</strong> (journal ou rapport) ;</li>
+  <li>un script <strong>commenté et indenté</strong>, avec un bref <code>README.txt</code> (comment le lancer, ce qui marche, ce qui ne marche pas).</li>
+</ul>
+<table>
+<tr><th>Barème (sur 20)</th><th>Points</th></tr>
+<tr><td>Le script fonctionne et fait ce qui est demandé</td><td>6</td></tr>
+<tr><td>Utilisation d’une condition, d’une boucle et d’une fonction</td><td>4</td></tr>
+<tr><td>Gestion des erreurs et des arguments</td><td>3</td></tr>
+<tr><td>Lisibilité : commentaires, indentation, noms clairs</td><td>3</td></tr>
+<tr><td>Redirections, journal ou rapport enregistré</td><td>2</td></tr>
+<tr><td>README.txt</td><td>2</td></tr>
+<tr><td>Bonus : planification avec <code>cron</code>, créativité</td><td>jusqu’à +2</td></tr>
+</table>
+<p>La date de remise et le format de dépôt te seront précisés par ton enseignant.</p>
+
+<div class="toolbox">
+  <h3>Ta boîte à outils après la séance 3</h3>
+  <ul>
+    <li><code>for</code>, <code>while</code>, <code>while read</code>, <code>break</code>, <code>continue</code>, <code>while true</code></li>
+    <li><code>nom() { ... }</code>, arguments d’une fonction, <code>local</code></li>
+    <li><code>useradd</code>, <code>chpasswd</code>, <code>groupadd</code>, <code>getent</code>, <code>userdel</code></li>
+    <li><code>tar -czf</code>, <code>-tzf</code>, <code>-xzf</code>, <code>basename</code>, <code>date +%Y%m%d_%H%M%S</code></li>
+  </ul>
+  <p><strong>Prochaine séance :</strong> travail sur ton projet avec l’aide de ton enseignant, puis quiz sur les trois séances de bash.</p>
+</div>
+</section>
+
+<footer>Système d’exploitation – Bachelor 1 – Bash, séance 3</footer>
+</main>
+</div>
+<button id="theme" type="button" aria-label="Changer de thème">Thème clair / sombre</button>
+<script>
+(function(){
+  var b=document.getElementById('theme'),r=document.documentElement;
+  b.addEventListener('click',function(){
+    var dark=r.getAttribute('data-theme')==='dark'||(!r.getAttribute('data-theme')&&matchMedia('(prefers-color-scheme: dark)').matches);
+    r.setAttribute('data-theme',dark?'light':'dark');
+  });
+})();
+</script>
+</body>
+</html>

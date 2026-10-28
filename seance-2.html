@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bash – Séance 2 : faire des choix</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:wght@600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F4F6FB; --surface:#FFFFFF; --ink:#14213D; --muted:#4A5878; --line:#D5DBEA;
+  --accent:#B87700; --accent-bg:#FFF3D6; --code-bg:#14213D; --code-ink:#EAF0FF; --code-hl:#FFC857;
+  --ok:#1B7F5C; --ok-bg:#DDF3EA; --warn:#B3261E; --warn-bg:#FCE4E2;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1626; --surface:#16213A; --ink:#EAF0FF; --muted:#A8B6D6; --line:#2A3858;
+    --accent:#FFC857; --accent-bg:#2B2410; --code-bg:#08101F; --code-ink:#EAF0FF; --code-hl:#FFC857;
+    --ok:#6FE0B5; --ok-bg:#12322A; --warn:#FF9E96; --warn-bg:#3A1A18;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1626; --surface:#16213A; --ink:#EAF0FF; --muted:#A8B6D6; --line:#2A3858;
+  --accent:#FFC857; --accent-bg:#2B2410; --code-bg:#08101F; --code-ink:#EAF0FF; --code-hl:#FFC857;
+  --ok:#6FE0B5; --ok-bg:#12322A; --warn:#FF9E96; --warn-bg:#3A1A18;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:1rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 1.2rem/1.6 "Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif}
+.layout{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:2.5rem;max-width:80rem;margin:0 auto;padding:1.5rem}
+nav{position:sticky;top:1.5rem;align-self:start;font-size:.95rem}
+nav h2{font:800 1.1rem "Bricolage Grotesque",sans-serif;margin:0 0 .75rem}
+nav ol{list-style:none;margin:0;padding:0;border-left:3px solid var(--line)}
+nav li a{display:block;padding:.45rem .8rem;color:var(--muted);text-decoration:none;border-left:3px solid transparent;margin-left:-3px}
+nav li a:hover,nav li a:focus-visible{color:var(--ink);border-left-color:var(--accent);outline:none}
+nav small{display:block;color:var(--muted)}
+main{min-width:0;max-width:52rem}
+header.hero{padding:1rem 0 2rem;border-bottom:3px solid var(--ink);margin-bottom:2rem}
+h1{font:800 clamp(2.2rem,5vw,3.4rem)/1.05 "Bricolage Grotesque",sans-serif;margin:0 0 .75rem;letter-spacing:-.02em}
+.lead{font-size:1.3rem;color:var(--muted);margin:0}
+h2{font:800 1.9rem/1.15 "Bricolage Grotesque",sans-serif;margin:3.2rem 0 .8rem;letter-spacing:-.01em}
+h3{font:600 1.3rem "Bricolage Grotesque",sans-serif;margin:1.8rem 0 .4rem}
+p{margin:.6rem 0}
+code{font:400 .92em "JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;background:var(--accent-bg);color:var(--ink);padding:.1em .35em;border-radius:4px}
+pre{background:var(--code-bg);color:var(--code-ink);padding:1rem 1.2rem;border-radius:8px;overflow-x:auto;margin:.9rem 0;font:400 1.02rem/1.55 "JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;border:1px solid var(--line)}
+pre code{background:none;color:inherit;padding:0;font:inherit}
+.c{color:#8FA3C8}.k{color:var(--code-hl)}
+.story{background:var(--accent-bg);border-left:6px solid var(--accent);padding:1rem 1.2rem;border-radius:0 8px 8px 0;margin:1.5rem 0}
+.story p{margin:.2rem 0}
+.pitfall{background:var(--warn-bg);border-left:6px solid var(--warn);padding:.8rem 1.1rem;border-radius:0 8px 8px 0;margin:1.2rem 0}
+.pitfall strong{color:var(--warn)}
+table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:1.05rem;background:var(--surface)}
+th,td{border:1px solid var(--line);padding:.5rem .8rem;text-align:left;vertical-align:top}
+th{background:var(--accent-bg)}
+.exo{background:var(--surface);border:2px solid var(--ink);border-radius:10px;padding:1.2rem 1.4rem;margin:2rem 0}
+.exo>h3{margin-top:0;display:flex;gap:.7rem;align-items:baseline;flex-wrap:wrap}
+.tag{font:700 .85rem "Atkinson Hyperlegible",sans-serif;background:var(--ink);color:var(--bg);padding:.15rem .6rem;border-radius:999px}
+.exo.defi{border-color:var(--accent);border-width:3px}
+.exo.defi .tag{background:var(--accent);color:var(--bg)}
+.exo ul,.exo ol{padding-left:1.4rem}
+.exo li{margin:.3rem 0}
+details{margin:1rem 0;border:1px dashed var(--line);border-radius:8px;padding:.5rem 1rem}
+summary{cursor:pointer;font-weight:700;color:var(--accent)}
+summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.toolbox{background:var(--ok-bg);border-left:6px solid var(--ok);padding:1rem 1.2rem;border-radius:0 8px 8px 0;margin:1.5rem 0}
+.toolbox h3{margin-top:0;color:var(--ok)}
+.toolbox ul{margin:.3rem 0;padding-left:1.3rem}
+footer{margin:4rem 0 2rem;color:var(--muted);font-size:.95rem}
+#theme{position:fixed;right:1rem;bottom:1rem;font:700 .95rem "Atkinson Hyperlegible",sans-serif;background:var(--ink);color:var(--bg);border:0;border-radius:999px;padding:.55rem 1rem;cursor:pointer}
+#theme:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+@media (max-width:60rem){.layout{grid-template-columns:1fr;gap:1rem}nav{position:static}nav ol{display:flex;flex-wrap:wrap;border-left:0;gap:.3rem}nav li a{border:1px solid var(--line);border-radius:999px;margin:0;padding:.3rem .8rem}nav small{display:none}}
+@media print{nav,#theme{display:none}.layout{display:block}}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<nav aria-label="Plan de la séance">
+  <h2>Séance 2</h2>
+  <ol>
+    <li><a href="#echauffement">Échauffement<small>10 min</small></a></li>
+    <li><a href="#if">Le if et les tests<small>20 min</small></a></li>
+    <li><a href="#fichiers">Tester les fichiers<small>20 min</small></a></li>
+    <li><a href="#videur">Le videur<small>15 min</small></a></li>
+    <li><a href="#case">Le menu avec case<small>10 min</small></a></li>
+    <li><a href="#defi">Le défi final<small>15 min</small></a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="hero">
+  <h1>Mes scripts font des choix</h1>
+  <p class="lead">Système d’exploitation – Bachelor 1 – Séance 2 sur 4. Aujourd’hui, tes scripts arrêtent d’obéir aveuglément.</p>
+  <div class="story">
+    <p><strong>Chez BashCorp, un script mal lancé a effacé le mauvais dossier.</strong> Ton chef exige désormais que chaque script vérifie ce qu’on lui donne avant d’agir.</p>
+    <p>Outil n°2 à construire : <strong>le videur</strong>, qui laisse entrer ou refuse. Et pour finir, un jeu.</p>
+  </div>
+</header>
+
+<section id="echauffement">
+<h2>Échauffement : le code de retour</h2>
+<p>Chaque commande, quand elle se termine, laisse un <strong>code de retour</strong> : <code>0</code> veut dire « tout s’est bien passé », tout autre nombre veut dire « problème ». Il est stocké dans <code>$?</code>.</p>
+<pre><code>$ ls /etc
+$ echo $?
+$ ls /dossier_inexistant
+$ echo $?</code></pre>
+<p>Dans le 2e cas, le message d’erreur s’affiche et le code n’est plus 0. Pour faire taire une commande quand seul son résultat compte :</p>
+<pre><code>$ id root &amp;&gt;/dev/null ; echo $?       <span class="c"># 0 : l’utilisateur existe</span>
+$ id toto &amp;&gt;/dev/null ; echo $?       <span class="c"># 1 : il n’existe pas</span></code></pre>
+<p><code>&amp;&gt;/dev/null</code> envoie tout ce que la commande affiche (résultat et erreurs) dans la « poubelle » du système. C’est la suite de ce qu’on a vu avec <code>&gt;</code> et <code>2&gt;</code> en séance 1.</p>
+<p><strong>À vous :</strong> trouvez le code de retour de <code>cd /root</code>, de <code>cat /etc/shadow</code> et de <code>grep root /etc/passwd</code>. Qu’en déduisez-vous ?</p>
+</section>
+
+<section id="if">
+<h2>Le if et les tests</h2>
+<pre><code><span class="k">if</span> [ condition ]; <span class="k">then</span>
+    echo "la condition est vraie"
+<span class="k">else</span>
+    echo "la condition est fausse"
+<span class="k">fi</span>                         <span class="c"># fi = if à l’envers : il ferme le bloc</span></code></pre>
+<div class="pitfall"><strong>Pièges classiques :</strong> les <strong>espaces</strong> après <code>[</code> et avant <code>]</code> sont obligatoires ; et on met les variables entre guillemets : <code>"$x"</code>.</div>
+
+<h3>Les comparaisons</h3>
+<table>
+<tr><th>Pour des nombres</th><th>Sens</th><th>Pour du texte</th><th>Sens</th></tr>
+<tr><td><code>-eq</code></td><td>égal</td><td><code>=</code></td><td>égal</td></tr>
+<tr><td><code>-ne</code></td><td>différent</td><td><code>!=</code></td><td>différent</td></tr>
+<tr><td><code>-lt</code> / <code>-le</code></td><td>plus petit / inférieur ou égal</td><td><code>-z "$x"</code></td><td>vide</td></tr>
+<tr><td><code>-gt</code> / <code>-ge</code></td><td>plus grand / supérieur ou égal</td><td><code>-n "$x"</code></td><td>non vide</td></tr>
+</table>
+<p>Exemple, avec ce que tu as appris en séance 1 :</p>
+<pre><code>if [ $# -lt 1 ]; then
+    echo "Usage : $0 prenom"
+    exit 1                  <span class="c"># on quitte le script avec le code 1 (= erreur)</span>
+fi
+echo "Bonjour $1 !"</code></pre>
+
+<div class="exo">
+  <h3><span class="tag">Exercice 1</span> Le contrôle d’entrée</h3>
+  <ol>
+    <li>Reprends ton <code>salut.sh</code> de la séance 1. Si on ne donne aucun argument, il affiche un message d’usage et s’arrête avec <code>exit 1</code>. Sinon, il dit bonjour.</li>
+    <li>Lance-le sans argument, puis avec un argument. Après chaque lancement, tape <code>echo $?</code>. Que valent les codes ?</li>
+    <li>Modifie-le pour exiger <strong>exactement deux</strong> arguments (prénom et nom).</li>
+  </ol>
+  <details><summary>Un indice</summary>
+    <p>La condition à tester est sur <code>$#</code>. Pour « exactement 2 », cherche dans le tableau l’opérateur de comparaison qui convient.</p>
+  </details>
+</div>
+</section>
+
+<section id="fichiers">
+<h2>Tester les fichiers</h2>
+<p>Bash sait poser des questions sur les fichiers, et ça rejoint ce que tu as vu sur les droits.</p>
+<table>
+<tr><th>Test</th><th>Vrai si…</th></tr>
+<tr><td><code>-e "$f"</code></td><td>le chemin existe</td></tr>
+<tr><td><code>-f "$f"</code></td><td>c’est un fichier ordinaire</td></tr>
+<tr><td><code>-d "$f"</code></td><td>c’est un dossier</td></tr>
+<tr><td><code>-r</code> / <code>-w</code> / <code>-x</code></td><td>tu as le droit de lire / écrire / exécuter</td></tr>
+<tr><td><code>! test</code></td><td>le test est faux (négation)</td></tr>
+</table>
+<p>Pour enchaîner plusieurs cas, on utilise <code>elif</code> (« sinon si ») :</p>
+<pre><code>if [ ! -e "$1" ]; then
+    echo "n’existe pas"
+elif [ -d "$1" ]; then
+    echo "c’est un dossier"
+elif [ -f "$1" ]; then
+    echo "c’est un fichier"
+fi</code></pre>
+
+<div class="exo">
+  <h3><span class="tag">Exercice 2</span> L’inspecteur de fichiers</h3>
+  <p>Écris <code>inspecteur.sh</code> qui reçoit un chemin en argument et :</p>
+  <ul>
+    <li>vérifie qu’on a bien donné un argument (sinon usage + <code>exit 1</code>) ;</li>
+    <li>dit si le chemin n’existe pas (et s’arrête avec <code>exit 2</code>), est un fichier ou est un dossier ;</li>
+    <li>indique pour l’utilisateur courant s’il peut le <strong>lire</strong>, l’<strong>écrire</strong> et l’<strong>exécuter</strong>.</li>
+  </ul>
+  <p>Teste avec : <code>/etc/passwd</code>, <code>/etc</code>, <code>/etc/shadow</code>, <code>/bin/ls</code>, <code>/nimportequoi</code> et un script à toi. Compare <code>ls -l</code> avec les réponses du script.</p>
+  <details><summary>Un indice</summary>
+    <p>Mets le chemin dans une variable : <code>chemin="$1"</code>. Chaque droit a son propre <code>if / else</code>. Le test d’existence s’écrit <code>[ ! -e "$chemin" ]</code>.</p>
+  </details>
+</div>
+</section>
+
+<section id="videur">
+<h2>Le videur</h2>
+<p>Deux tests utiles pour un administrateur :</p>
+<pre><code>if [ "$(id -u)" -eq 0 ]; then     <span class="c"># id -u donne l’UID : 0, c’est root</span>
+    echo "je suis root"
+fi
+
+if id "$1" &amp;&gt;/dev/null; then       <span class="c"># le if teste directement le code de retour</span>
+    echo "$1 existe"
+fi</code></pre>
+<p>Remarque : après <code>if</code>, on peut mettre <strong>n’importe quelle commande</strong>. Le <code>then</code> s’exécute si son code de retour est 0. Les crochets <code>[ ]</code> ne sont que la commande <code>test</code> écrite autrement.</p>
+
+<div class="exo">
+  <h3><span class="tag">Exercice 3</span> Le videur de BashCorp</h3>
+  <p>Écris <code>videur.sh</code> qui reçoit un nom d’utilisateur en argument et :</p>
+  <ul>
+    <li>refuse de continuer si l’argument manque ;</li>
+    <li>dit si <strong>toi</strong> tu es root ou un utilisateur normal ;</li>
+    <li>dit si l’utilisateur demandé <strong>existe</strong> (et affiche son UID s’il existe, sinon <code>exit 2</code>) ;</li>
+    <li><strong>Bonus :</strong> dit s’il fait partie du groupe <code>sudo</code>.</li>
+  </ul>
+  <p>Teste avec <code>root</code>, ton propre compte, et un nom inventé. Lance-le en utilisateur normal puis avec <code>sudo</code> ou <code>su</code> : le résultat change-t-il ?</p>
+  <details><summary>Un indice pour le bonus</summary>
+    <p><code>id -nG nom</code> affiche les groupes de l’utilisateur. Envoie-les dans <code>grep -qw sudo</code> avec un pipe : <code>-q</code> n’affiche rien, <code>-w</code> cherche le mot entier. Et le <code>if</code> teste le code de retour de <code>grep</code>.</p>
+  </details>
+</div>
+</section>
+
+<section id="case">
+<h2>Le menu avec case</h2>
+<p>Quand une variable peut prendre plusieurs valeurs, <code>case</code> est plus lisible qu’une chaîne de <code>elif</code>.</p>
+<pre><code>case "$reponse" in
+    oui|o) echo "d’accord" ;;
+    non|n) echo "tant pis" ;;
+    *)     echo "je n’ai pas compris" ;;     <span class="c"># * = tout le reste</span>
+esac                                          <span class="c"># esac = case à l’envers</span></code></pre>
+<p>Chaque cas se termine par <code>;;</code> et le <code>*)</code> final rattrape tout ce qui n’a pas été prévu.</p>
+
+<div class="exo">
+  <h3><span class="tag">Exercice 4</span> Le mini menu d’administration</h3>
+  <p>Écris <code>menu.sh</code> qui affiche ce menu, lit le choix avec <code>read</code> puis exécute l’action :</p>
+  <pre><code>=== Menu BashCorp ===
+1) Date et heure
+2) Utilisateurs connectes
+3) Espace disque
+4) Quitter</code></pre>
+  <p>Un choix invalide doit afficher un message d’erreur et s’arrêter avec <code>exit 1</code>.</p>
+  <p><strong>Bonus :</strong> accepte aussi les lettres <code>d</code>, <code>u</code>, <code>e</code> et <code>q</code> en plus des chiffres.</p>
+</div>
+</section>
+
+<section id="defi">
+<h2>Le défi final : devine le nombre</h2>
+<div class="exo defi">
+  <h3><span class="tag">Défi</span> Le jeu du nombre mystère</h3>
+  <p>Bash sait tirer un nombre au hasard avec <code>$RANDOM</code> (entre 0 et 32767), et calculer avec <code>$(( ... ))</code> :</p>
+  <pre><code>secret=$(( RANDOM % 100 + 1 ))      <span class="c"># un nombre entre 1 et 100</span></code></pre>
+  <p>Écris <code>devine.sh</code> :</p>
+  <ul>
+    <li>l’ordinateur tire un nombre secret entre 1 et 100 ;</li>
+    <li>le joueur propose un nombre avec <code>read</code> ;</li>
+    <li>le script répond <em>Trop petit</em>, <em>Trop grand</em> ou <em>Bravo</em>, et révèle le nombre secret.</li>
+  </ul>
+  <p>Pour l’instant, une seule tentative : la boucle arrive en séance 3 et le jeu deviendra complet.</p>
+  <p><strong>Pour les plus rapides :</strong> dis <em>Tu brûles !</em> si l’écart est de 5 ou moins ; refuse une saisie qui n’est pas un nombre ; accueille le joueur par son prénom, passé en argument.</p>
+  <details><summary>Un indice</summary>
+    <p>Trois cas, donc <code>if</code> / <code>elif</code> / <code>else</code>, avec <code>-eq</code>, <code>-lt</code> et le reste. Pour l’écart : <code>ecart=$(( essai - secret ))</code>, et s’il est négatif, change son signe.</p>
+  </details>
+</div>
+
+<div class="toolbox">
+  <h3>Ta boîte à outils après la séance 2</h3>
+  <ul>
+    <li><code>$?</code>, <code>exit</code>, <code>&amp;&gt;/dev/null</code></li>
+    <li><code>if / elif / else / fi</code>, <code>[ ]</code>, <code>-eq -ne -lt -gt</code>, <code>=</code>, <code>!=</code>, <code>-z -n</code></li>
+    <li><code>-e -f -d -r -w -x</code> et la négation <code>!</code></li>
+    <li><code>case ... in ... esac</code>, <code>$RANDOM</code>, <code>$(( ))</code></li>
+  </ul>
+  <p><strong>Prochaine séance :</strong> les boucles et les fonctions. Tu vas créer cinq utilisateurs d’un seul coup et fabriquer un script de sauvegarde.</p>
+</div>
+</section>
+
+<footer>Système d’exploitation – Bachelor 1 – Bash, séance 2</footer>
+</main>
+</div>
+<button id="theme" type="button" aria-label="Changer de thème">Thème clair / sombre</button>
+<script>
+(function(){
+  var b=document.getElementById('theme'),r=document.documentElement;
+  b.addEventListener('click',function(){
+    var dark=r.getAttribute('data-theme')==='dark'||(!r.getAttribute('data-theme')&&matchMedia('(prefers-color-scheme: dark)').matches);
+    r.setAttribute('data-theme',dark?'light':'dark');
+  });
+})();
+</script>
+</body>
+</html>

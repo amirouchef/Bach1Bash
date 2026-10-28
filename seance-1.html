@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bash – Séance 1 : mes premiers scripts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:wght@600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F4F6FB; --surface:#FFFFFF; --ink:#14213D; --muted:#4A5878; --line:#D5DBEA;
+  --accent:#B87700; --accent-bg:#FFF3D6; --code-bg:#14213D; --code-ink:#EAF0FF; --code-hl:#FFC857;
+  --ok:#1B7F5C; --ok-bg:#DDF3EA; --warn:#B3261E; --warn-bg:#FCE4E2;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1626; --surface:#16213A; --ink:#EAF0FF; --muted:#A8B6D6; --line:#2A3858;
+    --accent:#FFC857; --accent-bg:#2B2410; --code-bg:#08101F; --code-ink:#EAF0FF; --code-hl:#FFC857;
+    --ok:#6FE0B5; --ok-bg:#12322A; --warn:#FF9E96; --warn-bg:#3A1A18;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1626; --surface:#16213A; --ink:#EAF0FF; --muted:#A8B6D6; --line:#2A3858;
+  --accent:#FFC857; --accent-bg:#2B2410; --code-bg:#08101F; --code-ink:#EAF0FF; --code-hl:#FFC857;
+  --ok:#6FE0B5; --ok-bg:#12322A; --warn:#FF9E96; --warn-bg:#3A1A18;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:1rem}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 1.2rem/1.6 "Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif}
+.layout{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:2.5rem;max-width:80rem;margin:0 auto;padding:1.5rem}
+nav{position:sticky;top:1.5rem;align-self:start;font-size:.95rem}
+nav h2{font:800 1.1rem "Bricolage Grotesque",sans-serif;margin:0 0 .75rem}
+nav ol{list-style:none;margin:0;padding:0;border-left:3px solid var(--line)}
+nav li a{display:block;padding:.45rem .8rem;color:var(--muted);text-decoration:none;border-left:3px solid transparent;margin-left:-3px}
+nav li a:hover,nav li a:focus-visible{color:var(--ink);border-left-color:var(--accent);outline:none}
+nav small{display:block;color:var(--muted)}
+main{min-width:0;max-width:52rem}
+header.hero{padding:1rem 0 2rem;border-bottom:3px solid var(--ink);margin-bottom:2rem}
+h1{font:800 clamp(2.2rem,5vw,3.4rem)/1.05 "Bricolage Grotesque",sans-serif;margin:0 0 .75rem;letter-spacing:-.02em}
+.lead{font-size:1.3rem;color:var(--muted);margin:0}
+h2{font:800 1.9rem/1.15 "Bricolage Grotesque",sans-serif;margin:3.2rem 0 .8rem;letter-spacing:-.01em}
+h3{font:600 1.3rem "Bricolage Grotesque",sans-serif;margin:1.8rem 0 .4rem}
+p{margin:.6rem 0}
+code{font:400 .92em "JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;background:var(--accent-bg);color:var(--ink);padding:.1em .35em;border-radius:4px}
+pre{background:var(--code-bg);color:var(--code-ink);padding:1rem 1.2rem;border-radius:8px;overflow-x:auto;margin:.9rem 0;font:400 1.02rem/1.55 "JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;border:1px solid var(--line)}
+pre code{background:none;color:inherit;padding:0;font:inherit}
+.c{color:#8FA3C8}.k{color:var(--code-hl)}
+.story{background:var(--accent-bg);border-left:6px solid var(--accent);padding:1rem 1.2rem;border-radius:0 8px 8px 0;margin:1.5rem 0}
+.story p{margin:.2rem 0}
+.pitfall{background:var(--warn-bg);border-left:6px solid var(--warn);padding:.8rem 1.1rem;border-radius:0 8px 8px 0;margin:1.2rem 0}
+.pitfall strong{color:var(--warn)}
+table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:1.05rem;background:var(--surface)}
+th,td{border:1px solid var(--line);padding:.5rem .8rem;text-align:left;vertical-align:top}
+th{background:var(--accent-bg)}
+.exo{background:var(--surface);border:2px solid var(--ink);border-radius:10px;padding:1.2rem 1.4rem;margin:2rem 0}
+.exo>h3{margin-top:0;display:flex;gap:.7rem;align-items:baseline;flex-wrap:wrap}
+.tag{font:700 .85rem "Atkinson Hyperlegible",sans-serif;background:var(--ink);color:var(--bg);padding:.15rem .6rem;border-radius:999px}
+.exo.defi{border-color:var(--accent);border-width:3px}
+.exo.defi .tag{background:var(--accent);color:var(--bg)}
+.exo ul,.exo ol{padding-left:1.4rem}
+.exo li{margin:.3rem 0}
+details{margin:1rem 0;border:1px dashed var(--line);border-radius:8px;padding:.5rem 1rem}
+summary{cursor:pointer;font-weight:700;color:var(--accent)}
+summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.toolbox{background:var(--ok-bg);border-left:6px solid var(--ok);padding:1rem 1.2rem;border-radius:0 8px 8px 0;margin:1.5rem 0}
+.toolbox h3{margin-top:0;color:var(--ok)}
+.toolbox ul{margin:.3rem 0;padding-left:1.3rem}
+footer{margin:4rem 0 2rem;color:var(--muted);font-size:.95rem}
+#theme{position:fixed;right:1rem;bottom:1rem;font:700 .95rem "Atkinson Hyperlegible",sans-serif;background:var(--ink);color:var(--bg);border:0;border-radius:999px;padding:.55rem 1rem;cursor:pointer}
+#theme:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+@media (max-width:60rem){.layout{grid-template-columns:1fr;gap:1rem}nav{position:static}nav ol{display:flex;flex-wrap:wrap;border-left:0;gap:.3rem}nav li a{border:1px solid var(--line);border-radius:999px;margin:0;padding:.3rem .8rem}nav small{display:none}}
+@media print{nav,#theme{display:none}.layout{display:block}}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<nav aria-label="Plan de la séance">
+  <h2>Séance 1</h2>
+  <ol>
+    <li><a href="#intro">C’est quoi un script ?<small>10 min</small></a></li>
+    <li><a href="#premier">Mon premier script<small>20 min</small></a></li>
+    <li><a href="#variables">Variables et saisie<small>20 min</small></a></li>
+    <li><a href="#arguments">Les arguments<small>15 min</small></a></li>
+    <li><a href="#pipes">Redirections et pipes<small>10 min</small></a></li>
+    <li><a href="#defi">Le défi final<small>15 min</small></a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="hero">
+  <h1>Mes premiers scripts Bash</h1>
+  <p class="lead">Système d’exploitation – Bachelor 1 – Séance 1 sur 4. Tu tapes, tu testes, tu casses, tu répares.</p>
+  <div class="story">
+    <p><strong>Bienvenue chez BashCorp.</strong> Tu viens d’être embauché·e comme administrateur système d’une startup. Ton chef en a assez de refaire les mêmes commandes à la main toute la journée : ta mission est de les automatiser.</p>
+    <p>Chaque séance te fait gagner un outil. Aujourd’hui : <strong>l’outil n°1, le script d’identité de la machine</strong>.</p>
+  </div>
+</header>
+
+<section id="intro">
+<h2>C’est quoi un script ?</h2>
+<p>Un script est un <strong>fichier texte</strong> qui contient des commandes, lues et exécutées l’une après l’autre par l’interpréteur (ici <code>bash</code>). Tout ce que tu tapes déjà dans le terminal peut être mis dans un script.</p>
+<p>Pourquoi s’en servir ? Pour ne pas se répéter, ne pas se tromper, et pouvoir donner son travail à quelqu’un d’autre.</p>
+<h3>Préparation (2 minutes)</h3>
+<pre><code>$ mkdir -p ~/scripts
+$ cd ~/scripts
+$ nano bonjour.sh</code></pre>
+<p>Tu peux utiliser <code>nano</code> ou <code>vim</code>, comme tu préfères. Dans <code>nano</code> : <code>Ctrl+O</code> puis Entrée pour enregistrer, <code>Ctrl+X</code> pour quitter.</p>
+</section>
+
+<section id="premier">
+<h2>Mon premier script</h2>
+<p>Un script minimal a trois ingrédients :</p>
+<pre><code><span class="k">#!/bin/bash</span>
+<span class="c"># Ceci est un commentaire : bash l’ignore, les humains le lisent</span>
+echo "Bonjour le monde"</code></pre>
+<table>
+<tr><th>Élément</th><th>Rôle</th></tr>
+<tr><td><code>#!/bin/bash</code></td><td>Le <em>shebang</em> : première ligne, elle dit quel interpréteur utiliser</td></tr>
+<tr><td><code># ...</code></td><td>Commentaire : explique ce que fait le script</td></tr>
+<tr><td><code>echo</code></td><td>Affiche du texte à l’écran</td></tr>
+</table>
+<h3>Deux façons de l’exécuter</h3>
+<pre><code>$ bash bonjour.sh        <span class="c"># on demande à bash de lire le fichier</span>
+$ ./bonjour.sh           <span class="c"># on l’exécute directement… à condition d’avoir le droit x</span></code></pre>
+
+<div class="exo">
+  <h3><span class="tag">Exercice 1</span> Bonjour BashCorp</h3>
+  <ol>
+    <li>Crée <code>bonjour.sh</code> qui affiche <em>Bonjour, bienvenue chez BashCorp !</em> et qui contient un commentaire.</li>
+    <li>Lance-le avec <code>bash bonjour.sh</code>.</li>
+    <li>Lance-le avec <code>./bonjour.sh</code>. Que se passe-t-il ? Pourquoi ?</li>
+    <li>Regarde ses droits avec <code>ls -l</code>, corrige le problème, relance.</li>
+  </ol>
+  <details><summary>Un indice sur le point 3</summary>
+    <p>Relis le message d’erreur. Pense à ce que tu as vu sur les droits <code>r</code>, <code>w</code>, <code>x</code> et sur <code>chmod</code>.</p>
+  </details>
+</div>
+</section>
+
+<section id="variables">
+<h2>Variables et saisie</h2>
+<p>Une variable est une boîte avec un nom, dans laquelle on range une valeur.</p>
+<pre><code>nom="Alice"                    <span class="c"># on crée la variable (pas d’espace autour du =)</span>
+echo "Je m’appelle $nom"       <span class="c"># on l’utilise avec le $</span>
+echo "Date : $(date +%F)"      <span class="c"># $(commande) récupère le résultat d’une commande</span></code></pre>
+
+<div class="pitfall"><strong>Piège classique :</strong> <code>nom = "Alice"</code> avec des espaces ne marche pas. Bash croit que <code>nom</code> est une commande. Écris toujours <code>nom="Alice"</code>.</div>
+
+<h3>Demander une saisie avec <code>read</code></h3>
+<pre><code>read -p "Ton prénom ? " prenom
+echo "Salut $prenom !"</code></pre>
+<p>Variables déjà prêtes à l’emploi : <code>$USER</code>, <code>$HOME</code>, <code>$PWD</code>, <code>$HOSTNAME</code>. Tape <code>echo $USER $HOME</code> pour voir.</p>
+
+<div class="exo">
+  <h3><span class="tag">Exercice 2</span> Le bot d’accueil</h3>
+  <p>Écris <code>accueil.sh</code> qui :</p>
+  <ul>
+    <li>demande le prénom, puis l’âge ;</li>
+    <li>affiche une phrase personnalisée, par exemple <em>Salut Alice, 19 ans !</em> ;</li>
+    <li>ajoute une 2e ligne qui indique l’utilisateur Linux connecté et le nom de la machine (avec <code>$(whoami)</code> et <code>$(hostname)</code>).</li>
+  </ul>
+  <p><strong>Bonus :</strong> affiche aussi la date du jour dans le format JJ/MM/AAAA (regarde <code>man date</code>, section FORMAT).</p>
+  <details><summary>Un indice</summary>
+    <p>Une variable par réponse : <code>read -p "..." prenom</code>, puis <code>read -p "..." age</code>. Les guillemets doubles laissent bash remplacer les <code>$variables</code>.</p>
+  </details>
+</div>
+</section>
+
+<section id="arguments">
+<h2>Les arguments</h2>
+<p>Au lieu de poser une question, on peut donner l’information <strong>au lancement</strong> du script, comme pour <code>ls -l /etc</code>.</p>
+<pre><code>$ ./salut.sh Alice Dupont</code></pre>
+<table>
+<tr><th>Variable</th><th>Contenu</th><th>Avec l’exemple</th></tr>
+<tr><td><code>$0</code></td><td>Nom du script</td><td>./salut.sh</td></tr>
+<tr><td><code>$1</code>, <code>$2</code>…</td><td>1er, 2e argument</td><td>Alice, Dupont</td></tr>
+<tr><td><code>$#</code></td><td>Nombre d’arguments</td><td>2</td></tr>
+<tr><td><code>$@</code></td><td>Tous les arguments</td><td>Alice Dupont</td></tr>
+</table>
+
+<div class="exo">
+  <h3><span class="tag">Exercice 3</span> Salut, avec arguments</h3>
+  <ol>
+    <li>Écris <code>salut.sh</code> qui affiche <em>Bonjour Alice Dupont !</em> à partir de deux arguments (prénom, nom).</li>
+    <li>Fais-lui aussi afficher son propre nom et le nombre d’arguments reçus.</li>
+    <li>Teste avec 0, 1, 2 puis 3 arguments. Que remarques-tu ? (on réglera ça en séance 2 avec les conditions)</li>
+  </ol>
+</div>
+</section>
+
+<section id="pipes">
+<h2>Redirections et pipes</h2>
+<p>Par défaut, une commande affiche son résultat à l’écran. On peut le <strong>rediriger</strong> ou l’<strong>enchaîner</strong> avec une autre commande.</p>
+<table>
+<tr><th>Symbole</th><th>Effet</th><th>Exemple</th></tr>
+<tr><td><code>&gt;</code></td><td>Écrit dans un fichier (écrase)</td><td><code>who &gt; connectes.txt</code></td></tr>
+<tr><td><code>&gt;&gt;</code></td><td>Ajoute à la fin du fichier</td><td><code>date &gt;&gt; connectes.txt</code></td></tr>
+<tr><td><code>2&gt;</code></td><td>Redirige les messages d’erreur</td><td><code>ls /nimportequoi 2&gt; erreurs.txt</code></td></tr>
+<tr><td><code>|</code></td><td>Envoie la sortie d’une commande à la suivante</td><td><code>ls /etc | wc -l</code></td></tr>
+</table>
+
+<div class="pitfall"><strong>Attention :</strong> un seul <code>&gt;</code> <em>écrase</em> le fichier sans prévenir. Pour garder l’existant, utilise <code>&gt;&gt;</code>.</div>
+
+<div class="exo">
+  <h3><span class="tag">Exercice 4</span> Tuyauterie</h3>
+  <p>Directement dans le terminal, sans script :</p>
+  <ol>
+    <li>Combien de fichiers et dossiers y a-t-il dans <code>/etc</code> ?</li>
+    <li>Enregistre la liste des utilisateurs connectés dans <code>connectes.txt</code>, puis ajoute la date à la suite. Affiche le fichier.</li>
+    <li>Lance <code>ls /dossier_inexistant</code> en envoyant l’erreur dans <code>erreurs.txt</code>. Que contient le fichier ? Que voit-on à l’écran ?</li>
+    <li>Affiche les 5 premiers noms de comptes du système, triés par ordre alphabétique (fichier <code>/etc/passwd</code>, commandes <code>cut</code>, <code>sort</code>, <code>head</code>).</li>
+  </ol>
+  <details><summary>Un indice sur le point 4</summary>
+    <p>Dans <code>/etc/passwd</code>, les champs sont séparés par <code>:</code> et le nom du compte est le 1er champ. <code>cut -d: -f1</code> sait l’extraire.</p>
+  </details>
+</div>
+</section>
+
+<section id="defi">
+<h2>Le défi final : l’outil n°1</h2>
+<div class="exo defi">
+  <h3><span class="tag">Défi</span> La fiche d’identité de la machine</h3>
+  <p>Ton chef veut un script qui produit, en une commande, une fiche à jour sur la machine. Écris <code>fiche_machine.sh</code> qui <strong>affiche</strong> et <strong>enregistre</strong> dans un fichier <code>fiche_NOMDELAMACHINE.txt</code> :</p>
+  <ul>
+    <li>un titre et la date et l’heure ;</li>
+    <li>l’utilisateur courant et le nom de la machine ;</li>
+    <li>la version de Debian (fichier <code>/etc/debian_version</code>) ;</li>
+    <li>depuis combien de temps la machine tourne (<code>uptime -p</code>) ;</li>
+    <li>l’espace disque de la racine (<code>df -h /</code>) ;</li>
+    <li>le nombre de comptes présents dans <code>/etc/passwd</code>.</li>
+  </ul>
+  <p><strong>Contraintes :</strong> shebang, commentaires, au moins une variable, exécutable avec <code>./fiche_machine.sh</code>.</p>
+  <p><strong>Pour les plus rapides :</strong> n’affiche à l’écran que le message <em>Fiche enregistrée dans …</em> ; ajoute le nombre de fichiers de ton dossier personnel ; ajoute les 3 dernières connexions (<code>last -n 3</code>).</p>
+  <details><summary>Un indice</summary>
+    <p>Stocke le nom du fichier dans une variable : <code>FICHE="fiche_$(hostname).txt"</code>. Commence par <code>&gt;</code> pour créer le fichier vide, puis <code>&gt;&gt;</code> pour tout le reste.</p>
+  </details>
+</div>
+
+<div class="toolbox">
+  <h3>Ta boîte à outils après la séance 1</h3>
+  <ul>
+    <li><code>#!/bin/bash</code>, commentaires, <code>chmod +x</code>, <code>./script.sh</code></li>
+    <li><code>echo</code>, variables, <code>$(commande)</code>, <code>read -p</code></li>
+    <li><code>$0</code>, <code>$1</code>, <code>$#</code>, <code>$@</code></li>
+    <li><code>&gt;</code>, <code>&gt;&gt;</code>, <code>2&gt;</code>, <code>|</code></li>
+  </ul>
+  <p><strong>Prochaine séance :</strong> ton script apprend à prendre des décisions (<code>if</code>, tests, <code>case</code>) et on fabrique un jeu.</p>
+</div>
+</section>
+
+<footer>Système d’exploitation – Bachelor 1 – Bash, séance 1</footer>
+</main>
+</div>
+<button id="theme" type="button" aria-label="Changer de thème">Thème clair / sombre</button>
+<script>
+(function(){
+  var b=document.getElementById('theme'),r=document.documentElement;
+  b.addEventListener('click',function(){
+    var dark=r.getAttribute('data-theme')==='dark'||(!r.getAttribute('data-theme')&&matchMedia('(prefers-color-scheme: dark)').matches);
+    r.setAttribute('data-theme',dark?'light':'dark');
+  });
+})();
+</script>
+</body>
+</html>
